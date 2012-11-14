@@ -7,7 +7,7 @@ setup(
     url='https://github.com/timbaobjects/python-stanbicmm',
     license='LICENSE',
     description='A Stanbic Mobile Money interface library',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     install_requires=[
         "mechanize == 0.2.5",
     ],
