@@ -5,12 +5,12 @@ stanbicmm.stanbic
 This is the core module for all the functionality required
 to interact with the Stanbic Mobile Money web application.
 """
-
 from copy import deepcopy
 import csv
 from cStringIO import StringIO
 from datetime import datetime
 from .exceptions import *
+import json
 import mechanize
 import urllib
 
@@ -31,6 +31,7 @@ class StanbicMM(object):
     AUTH_URL = 'https://mobilemoney.stanbic.com/do/login'
     TRANSACTIONS_EXPORT_URL = 'https://mobilemoney.stanbic.com/do/exportAccountHistoryToCsv'
     TRANSACTIONS_URL = 'https://mobilemoney.stanbic.com/do/member/accountHistory?advanced=true&memberId=0&typeId=5'
+    SEARCH_MEMBERS_URL = 'https://mobilemoney.stanbic.com/do/searchMembersAjax'
     ERROR_URL = 'https://mobilemoney.stanbic.com/do/error'
     TRANSACTIONS_FORM = None
 
@@ -51,6 +52,34 @@ class StanbicMM(object):
         self.pin = pin
         self.br = browser or mechanize.Browser()
         self.br.set_handle_robots(False)
+
+    def get_account_details(self, account):
+        """
+        This method can be used in a number of scenarios:
+        1. When it is necessary to very account information
+        2. When there's a need to filter transactions by an account id
+        3. When account details (e.g. name of account) are needed
+        """
+        _form = mechanize.HTMLForm(self.SEARCH_MEMBERS_URL, method="POST")
+        _form.new_control('text', 'username', {'value': account})
+        _form.new_control('text', '_', {'value': ''})
+
+        try:
+            r = self.post_url(self.SEARCH_MEMBERS_URL, form=_form)
+        except AuthRequiredException:
+            self._auth()
+            r = self.post_url(self.SEARCH_MEMBERS_URL, form=_form)
+
+        if r:
+            # single quoted json parameters are not valid so convert
+            # them into double quoted parameters
+            _decoded = json.loads(r.replace("'", '"'))
+            # we have a double array result so retrieve only what's
+            # essential
+            if _decoded[0]:
+                return _decoded[0][0]
+
+        raise InvalidAccountException
 
     def get_transactions(self, **kwargs):
         """
@@ -133,7 +162,7 @@ class StanbicMM(object):
         """
         Internally used to retrieve the contents of a URL using
         the POST request method.
-        
+
         The `form` parameter is a mechanize.HTMLForm object
 
         This method will use a POST request type regardless of the method

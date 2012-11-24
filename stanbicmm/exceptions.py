@@ -19,3 +19,11 @@ class AuthDeniedException(Exception):
 class RequestErrorException(Exception):
     """Some requests will generate an error if the supplied
     request parameters are invalid"""
+
+
+class InvalidAccountException(Exception):
+    """When retrieving account details for an invalid or non-existent
+    account, this exception gets thrown. This exception is also get
+    raised if you're trying to retrieve account details for the currently
+    authenticated account.
+    """
