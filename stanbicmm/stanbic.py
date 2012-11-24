@@ -89,11 +89,14 @@ class StanbicMM(object):
         to_date: a datetime object representing the date the filter should end with
         from_date: a datetime object representing the date the filter should start from
         txn_ref: the transaction reference of a particular transaction
+        from_account_id: the account id for the account to filter transactions by (you will
+        need to get this information from `get_account_details` method)
 
         If you specify txn_ref, then it's not necessary to specify to_date and from_date.
         """
         kw_map = {
             'to_date': 'query(period).end',
+            'from_account_id': 'query(member)',
             'from_date': 'query(period).begin',
             'txn_ref': 'query(transactionNumber)'}
 
@@ -110,6 +113,9 @@ class StanbicMM(object):
             _form = deepcopy(self.TRANSACTIONS_FORM)
         else:
             _form = deepcopy(self.TRANSACTIONS_FORM)
+
+        # make all hidden and readonly fields writable
+        _form.set_all_readonly(False)
 
         for key, field_name in kw_map.items():
             if key in kwargs:
