@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='python-stanbicmm',
-    version='0.1dev',
+    version='0.1',
     packages=['stanbicmm',],
     author="Tim Akinbo",
     author_email="takinbo@timbaobjects.com",
@@ -11,6 +11,6 @@ setup(
     description='A Stanbic Mobile Money interface library',
     long_description=open('README.rst').read(),
     install_requires=[
-        "mechanize == 0.2.5",
+        "mechanize >= 0.2.5",
     ],
 )
